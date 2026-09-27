@@ -5,7 +5,7 @@
 **Boop a dog on the nose and find out something true about dogs.** A dog pokes its head up from the bottom of the
 screen. Tap its nose and it squints, sneezes, licks its nose or sticks its tongue out, and a card shows one fact: how a dog's
 nose works, what dogs see and hear, where each breed comes from, or which popular dog facts are myths. There are
-110 facts and 22 dogs, and a fact book keeps the ones you've found, each with a link to where it comes from.
+113 facts and 23 dogs, and a fact book keeps the ones you've found, each with a link to where it comes from.
 
 <p align="center">
   <img src="docs/phone-boop.png" alt="A Corgi with its eyes squeezed shut and its tongue out, just booped. Above it a card headed The nose says how many scent receptors a dog's nose has, with a link to the source." width="250">
@@ -58,7 +58,7 @@ To put it online with GitHub Pages: **Settings → Pages → Build and deploymen
 ### Files
 
 - `js/facts.js`: every fact, its topic, and its source.
-- `js/breeds.js`: the 22 dogs, as descriptions: head shape, ears, muzzle, markings, colours.
+- `js/breeds.js`: the 23 dogs, as descriptions: head shape, ears, muzzle, markings, colours.
 - `js/dog.js`: draws a dog from a description as one SVG, with named parts that can move; `js/geom.js` has the curve and fur helpers.
 - `js/motion.js`: breathing, blinking, looking at your finger, and the reactions to a boop, all on springs.
 - `js/mutt.js`: shuffles coat, ears and markings for the mixed breed.

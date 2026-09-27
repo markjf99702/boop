@@ -129,13 +129,16 @@ export function drawDog(spec, { uid = 'dog', seed = 7, title } = {}) {
   const eyeCol = s.eyes.color;
   const lidCol = col(s.eyes.lidColor || s.head.fill || 'coat');
   const rim = s.eyes.rim || INK;
+  // A shut eye is a dark line, which disappears on dark fur, so there it's a lighter one.
+  const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.3 * (n >> 16) + 0.59 * ((n >> 8) & 255) + 0.11 * (n & 255)) / 255; };
+  const shutCol = lum(lidCol) < 0.3 ? shade(lidCol, 0.5) : rim;
   const oneEye = side => {
     const x = side * eg;
     const lid = s.eyes.lid;
     let e = `<g class="eye" transform="translate(${r1(x)} ${r1(eyeY)})"><g class="eye-open">`;
     if (s.eyes.haw) e += `<path d="M${r1(-er * 0.9)} ${r1(er * 0.5)}Q0 ${r1(er * 2.1)} ${r1(er * 0.9)} ${r1(er * 0.5)}Z" fill="#b8575a" opacity=".85"/>`;
     e += `<circle r="${r1(er + 1.8)}" fill="${rim}"/>`;
-    e += `<g class="iris"><circle r="${r1(er)}" fill="${eyeCol}"/><circle r="${r1(er * 0.58)}" fill="#0c0806"/>`;
+    e += `<g class="iris"><circle r="${r1(er)}" fill="${side > 0 && s.eyes.odd ? s.eyes.odd : eyeCol}"/><circle r="${r1(er * 0.58)}" fill="#0c0806"/>`;
     e += `<circle cx="${r1(-er * 0.3)}" cy="${r1(-er * 0.34)}" r="${r1(er * 0.33)}" fill="#fff"/><circle cx="${r1(er * 0.36)}" cy="${r1(er * 0.32)}" r="${r1(er * 0.13)}" fill="#fff" opacity=".8"/></g>`;
     if (lid > 0) {
       const R0 = er + 2.6, y0 = -R0 + 2 * R0 * lid;
@@ -144,7 +147,7 @@ export function drawDog(spec, { uid = 'dog', seed = 7, title } = {}) {
       e += `<path d="M${r1(-hx - 1)} ${r1(y0 - side * 1.5)}A${r1(R0)} ${r1(R0)} 0 0 1 ${r1(hx + 1)} ${r1(y0 + side * 1.5)}Z" fill="${lidCol}"/>`;
       e += `<path d="M${r1(-hx)} ${r1(y0 - side * 1.5)}L${r1(hx)} ${r1(y0 + side * 1.5)}" stroke="${rim}" stroke-width="2" stroke-linecap="round"/>`;
     }
-    e += `</g><path class="eye-shut" d="M${r1(-er * 1.05)} ${r1(er * 0.25)}Q0 ${r1(-er * 1.05)} ${r1(er * 1.05)} ${r1(er * 0.25)}" stroke="${rim}" stroke-width="${r1(Math.max(3, er * 0.4))}" fill="none" stroke-linecap="round" visibility="hidden"/></g>`;
+    e += `</g><path class="eye-shut" d="M${r1(-er * 1.05)} ${r1(er * 0.25)}Q0 ${r1(-er * 1.05)} ${r1(er * 1.05)} ${r1(er * 0.25)}" stroke="${shutCol}" stroke-width="${r1(Math.max(3, er * 0.4))}" fill="none" stroke-linecap="round" visibility="hidden"/></g>`;
     return e;
   };
   const eyes = oneEye(-1) + oneEye(1);
@@ -359,6 +362,8 @@ function mark(m, g, col, rand) {
       // A husky's dark cap, with a point down the forehead between the eyes.
       const pts = [[-w * 1.3, -h * 1.4], [w * 1.3, -h * 1.4], [w * 1.2, eyeY - er * 0.2], [eg + er * 2.2, eyeY - er * 0.6], [eg + er * 0.4, eyeY - er * 1.9], [eg * 0.45, eyeY - er * 1.6], [0, eyeY + er * (o.peak ?? 0.9)], [-eg * 0.45, eyeY - er * 1.6], [-(eg + er * 0.4), eyeY - er * 1.9], [-(eg + er * 2.2), eyeY - er * 0.6], [-w * 1.2, eyeY - er * 0.2]];
       let d = `<path d="${smooth(pts)}" fill="${c}"/>`;
+      // Goggles: dark all round each eye, as an Alaskan Klee Kai's breed standard asks for.
+      if (o.goggles) for (const sx of [-1, 1]) d += `<ellipse cx="${r1(sx * (eg + 1))}" cy="${r1(eyeY + 1)}" rx="${r1(er * o.goggles)}" ry="${r1(er * o.goggles * 0.8)}" transform="rotate(${sx * 14} ${r1(sx * eg)} ${r1(eyeY)})" fill="${c}"/>`;
       if (o.spots !== false) for (const sx of [-1, 1]) d += `<ellipse cx="${r1(sx * (eg + 1))}" cy="${r1(eyeY - er * 2.1)}" rx="${r1(er * 0.85)}" ry="${r1(er * 0.55)}" fill="${col('light')}"/>`;
       return d;
     }
