@@ -306,6 +306,9 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
 }
 .book .reset[data-armed] { border-color: var(--nose); color: var(--nose); }
 .book .about { margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.jd-foot { margin: 32px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; text-align: center; }
+.jd-foot a { color: inherit; text-decoration: none; }
+.jd-foot a:hover, .jd-foot a:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
 .noscript { padding: 24px; font-size: 18px; }
 
