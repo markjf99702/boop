@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><clipPath id="tile"><rect width="64" height="64" rx="14"/></clipPath></defs>
+  <g clip-path="url(#tile)">
+    <rect width="64" height="64" fill="#dc9a52"/>
+    <ellipse cx="32" cy="57" rx="31" ry="27" fill="#f7ecdc"/>
+    <path d="M32 40.5V47M17.5 46.5Q24 54.5 32 47Q40 54.5 46.5 46.5" stroke="#8a6a50" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(32 28)">
+      <path d="M-19 -4.9C-19 -15.3-7.6-13.7 0-13.7C7.6-13.7 19-15.3 19-4.9C19 6 7.6 13.7 0 13.7C-7.6 13.7-19 6-19-4.9Z" fill="#231c19"/>
+      <ellipse cx="-8.3" cy="1.6" rx="4.4" ry="4" transform="rotate(28 -8.3 1.6)" fill="#0b0808"/>
+      <ellipse cx="8.3" cy="1.6" rx="4.4" ry="4" transform="rotate(-28 8.3 1.6)" fill="#0b0808"/>
+      <path d="M0 3.8V12.4" stroke="#0b0808" stroke-width="1.6" stroke-linecap="round"/>
+      <ellipse cx="-5" cy="-7.4" rx="6.4" ry="2.7" fill="#fff" opacity=".45"/>
+      <circle cx="4.6" cy="-8.6" r="1.4" fill="#fff" opacity=".55"/>
+    </g>
+  </g>
+</svg>

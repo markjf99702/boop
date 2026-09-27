@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Every dog</title>
+<style>
+  body { margin: 0; font: 14px system-ui; display: grid; grid-template-columns: repeat(auto-fill, var(--w, 300px)); gap: 0; }
+  figure { margin: 0; position: relative; }
+  figcaption { position: absolute; top: 6px; left: 8px; font-weight: 600; }
+  svg { display: block; width: var(--w, 300px); height: auto; }
+</style>
+<body>
+<script type="module">
+  import { BREEDS } from '../js/breeds.js';
+  import { drawDog } from '../js/dog.js';
+  import { mutt } from '../js/mutt.js';
+  import { seeded } from '../js/geom.js';
+  const only = new URLSearchParams(location.search).get('only');
+  for (const b of BREEDS) {
+    if (only && !only.split(',').includes(b.id)) continue;
+    const fig = document.createElement('figure');
+    fig.style.background = b.bg;
+    fig.innerHTML = drawDog(b, { uid: b.id }) + `<figcaption>${b.name}</figcaption>`;
+    document.body.append(fig);
+  }
+  // ?mutts=8 adds that many mixed breeds, to see the variety.
+  const n = +new URLSearchParams(location.search).get('mutts') || 0;
+  for (let i = 0; i < n; i++) {
+    const m = mutt(BREEDS.find(b => b.id === 'mutt'), seeded(i + 1));
+    const fig = document.createElement('figure');
+    fig.style.background = m.bg;
+    fig.innerHTML = drawDog(m, { uid: 'm' + i }) + `<figcaption>Mixed ${i + 1}</figcaption>`;
+    document.body.append(fig);
+  }
+  document.body.dataset.ready = '1';
+</script>

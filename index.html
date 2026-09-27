@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Boop</title>
+  <meta name="description" content="Boop a dog on the nose and find out something true about dogs: how their noses work, what they see and hear, where the breeds come from, and which popular dog facts are myths. Every fact links to where it comes from.">
+  <meta property="og:title" content="Boop">
+  <meta property="og:description" content="Boop a dog on the nose. Every boop turns up something true about dogs.">
+  <meta property="og:image" content="https://junkdrawer.works/boop/og.png">
+  <meta property="og:url" content="https://junkdrawer.works/boop/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#cfe2cf">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="preload" href="fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <h1 class="brand"><img src="icon.svg" alt="" width="30" height="30"><span>Boop</span></h1>
+    <button class="icon-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound">
+      <svg class="on" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.6 7.6 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg class="off" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="book-btn" id="bookBtn" type="button" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15.5H5.5A1.5 1.5 0 0 1 4 18zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15.5h5.5c.8 0 1.5-.7 1.5-1.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      <span class="long">Fact book</span>
+      <b class="count"><span id="foundCount">0</span><span class="of">/<span id="totalCount">0</span></span></b>
+    </button>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="card" id="card" aria-live="polite">
+      <p class="kicker"><span class="topic" id="topic"></span><span class="badge" id="badge" hidden>New</span></p>
+      <p class="fact intro" id="fact">Boop the nose.</p>
+      <p class="meta" id="meta"><span class="hint" id="hint">Every boop turns up something true about dogs.</span></p>
+    </section>
+
+    <div class="dog-wrap" id="dogWrap"></div>
+
+    <div class="dogbar">
+      <p class="breed" id="breed"></p>
+      <button class="next" id="nextBtn" type="button">Next dog <span aria-hidden="true">→</span></button>
+    </div>
+  </main>
+
+  <dialog class="book" id="book" aria-labelledby="bookTitle">
+    <div class="book-inner">
+      <header class="book-head">
+        <h2 id="bookTitle">Fact book</h2>
+        <button class="icon-btn close" id="closeBook" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div id="bookBody"></div>
+    </div>
+  </dialog>
+
+  <noscript><p class="noscript">Boop needs JavaScript to draw the dogs.</p></noscript>
+</body>
+</html>

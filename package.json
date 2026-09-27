@@ -1,0 +1,15 @@
+{
+  "name": "boop",
+  "private": true,
+  "type": "module",
+  "description": "Boop a dog on the nose. Every boop turns up something true about dogs.",
+  "scripts": {
+    "start": "npx --yes http-server -c-1 -p 8080 .",
+    "test": "node --test test/unit.test.mjs && node test/e2e.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "upng-js": "^2.1.0"
+  }
+}
