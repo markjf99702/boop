@@ -113,6 +113,29 @@ await page.reload();
 await page.evaluate(() => document.fonts.ready);
 assert.equal(await found(), 10, 'progress was lost on reload');
 
+// Start over forgets everything and puts the card back the way it starts, with the ring round the nose.
+await page.waitForTimeout(700);
+await tapNose();
+assert.equal(await found(), 11);
+await page.click('#bookBtn');
+await page.click('#resetBook');
+await page.click('#resetBook');
+assert.equal(await page.isVisible('#book'), false);
+assert.equal(await found(), 0);
+assert.deepEqual(await page.evaluate(() => ({
+  topic: document.getElementById('topic').textContent,
+  badgeHidden: document.getElementById('badge').hidden,
+  fact: document.getElementById('fact').textContent,
+  intro: document.getElementById('fact').classList.contains('intro'),
+  hint: document.getElementById('hint')?.textContent,
+  rings: document.querySelectorAll('.dog-wrap svg:last-child .nose .ring').length,
+})), { topic: '', badgeHidden: true, fact: 'Boop the nose.', intro: true, hint: 'Every boop turns up something true about dogs.', rings: 1 }, 'Start over left the last fact on the card');
+// And the next boop is the first one again.
+await page.waitForTimeout(720);
+await tapNose();
+assert.equal(await page.textContent('#fact'), first.text);
+assert.equal(await found(), 1);
+
 // Every dog draws, including a few different mixed breeds.
 const names = await page.evaluate(async () => {
   const { BREEDS } = await import('./js/breeds.js');

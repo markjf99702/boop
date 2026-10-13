@@ -35,6 +35,7 @@ let current = null;    // the fact on the card
 
 const wrap = $('dogWrap');
 const card = $('card');
+const firstCard = card.innerHTML; // what the card says before the first boop, for Start over
 
 // ---- dogs
 function showDog(id, { instant = false } = {}) {
@@ -70,7 +71,7 @@ function showDog(id, { instant = false } = {}) {
 
 // The pulsing ring round the nose, until the first boop.
 function addRing(svg) {
-  if (progress.boops > 0) return;
+  if (progress.boops > 0 || svg.querySelector('.ring')) return;
   const nose = svg.querySelector('.nose');
   const hit = nose.querySelector('.hit');
   const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -238,6 +239,13 @@ $('bookBtn').addEventListener('click', () => openBook({
     save();
     queue = dogQueue(BREEDS, progress, { current: dog?.id });
     updateCount(false);
+    // The card and the ring go back to how they were before the first boop.
+    card.innerHTML = firstCard;
+    card.style.removeProperty('--topic');
+    current = null;
+    lastTopic = null;
+    recent = [];
+    if (dog) { dog.boops = 0; addRing(dog.svg); }
   },
 }));
 document.addEventListener('keydown', e => {
