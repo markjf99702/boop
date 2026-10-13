@@ -191,6 +191,30 @@ await ctx.setOffline(false);
   await phone.close();
 }
 
+// With reduced motion on, the floating "boop" fades where you tapped instead of flying up.
+{
+  const still = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const p = await still.newPage();
+  p.on('pageerror', e => problems.push(e.message));
+  await p.goto(base);
+  await p.waitForTimeout(700);
+  // Catch the word as it appears and see where it is early on and near the end of its animation.
+  await p.evaluate(() => new MutationObserver(changes => {
+    for (const c of changes) for (const el of c.addedNodes) {
+      if (!el.classList?.contains('boopword')) continue;
+      const [a] = el.getAnimations();
+      const top = t => { if (a) a.currentTime = t; return el.getBoundingClientRect().top; };
+      window.boopword = { moved: Math.abs(top(800) - top(50)) };
+    }
+  }).observe(document.body, { childList: true }));
+  const box = await p.locator('.dog-wrap svg:last-child .nose .hit').boundingBox();
+  await p.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  const word = await p.evaluate(() => window.boopword);
+  assert.ok(word, 'no boop word on a tap');
+  assert.ok(word.moved < 1, `with reduced motion on, the boop word still moved ${word.moved}px`);
+  await still.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while using it');
 await browser.close();
 server.close();

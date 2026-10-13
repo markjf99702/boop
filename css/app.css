@@ -330,4 +330,7 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
   .card.pop, .book-btn.bump { animation: none; }
   .dog-wrap svg.leaving, .dog-wrap svg.arrived { transition-duration: .01s; }
   .nose .ring { animation: none; }
+  /* The floating "boop" fades in and out where you tapped instead of flying up. */
+  .boopword { animation: boopfade .9s ease-out forwards; }
+  @keyframes boopfade { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
 }
