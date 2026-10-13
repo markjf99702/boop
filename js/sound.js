@@ -17,6 +17,12 @@ function audio() {
   return ctx;
 }
 
+// A phone only lets a page start sound when a tap ends, but a boop happens as the finger lands, so the very
+// first boop's sound waits in a sleeping AudioContext. app.js calls this as every tap ends, to wake it then.
+export function wakeSound() {
+  if (on && ctx?.state === 'suspended') ctx.resume();
+}
+
 // A short rising blip. pitch > 1 for small dogs, < 1 for big ones.
 export function boopSound(pitch = 1) {
   const c = audio();

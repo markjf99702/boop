@@ -137,6 +137,37 @@ await page.reload();
 assert.ok(await page.title(), 'the page did not load offline');
 await ctx.setOffline(false);
 
+// On a phone the first boop makes a sound. A phone only lets a page start sound once a tap ends, and the boop
+// happens as the finger lands, so the sound has to be woken when the tap ends. This browser plays sound without
+// asking, so the AudioContext here follows a phone's rule instead. Nothing may run in the page before the tap,
+// because Playwright counts that as a tap: the page says where the nose is once the dog is up.
+{
+  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
+  await phone.addInitScript(() => {
+    window.AudioContext = class extends window.AudioContext {
+      #allowed = navigator.userActivation.hasBeenActive;
+      constructor(...args) { super(...args); window.sound = this; }
+      get state() { return this.#allowed ? 'running' : 'suspended'; }
+      resume() { if (navigator.userActivation.hasBeenActive) this.#allowed = true; return super.resume(); }
+    };
+    addEventListener('click', () => { window.soundAfterTap = window.sound?.state || 'none'; }, { capture: true, once: true });
+    document.addEventListener('transitionend', e => {
+      if (!e.target.matches?.('.dog-wrap svg.arrived')) return;
+      const r = e.target.querySelector('.nose .hit').getBoundingClientRect();
+      console.log(`nose at ${r.x + r.width / 2} ${r.y + r.height / 2}`);
+    }, true);
+  });
+  const p = await phone.newPage();
+  p.on('pageerror', e => problems.push(e.message));
+  const nose = p.waitForEvent('console', { predicate: m => m.text().startsWith('nose at'), timeout: 20000 });
+  await p.goto(base);
+  const [x, y] = (await nose).text().split(' ').slice(2).map(Number);
+  await p.touchscreen.tap(x, y);
+  await p.waitForFunction(() => window.soundAfterTap, null, { timeout: 5000 });
+  assert.equal(await p.evaluate(() => window.soundAfterTap), 'running', 'the first boop on a phone made no sound');
+  await phone.close();
+}
+
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while using it');
 await browser.close();
 server.close();

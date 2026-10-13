@@ -5,7 +5,7 @@ import { drawDog, VIEW } from './dog.js';
 import { DogMotion } from './motion.js';
 import { FACTS } from './facts.js';
 import { TOPICS, emptyProgress, tidy, nextFact, record, dogQueue, counts } from './deck.js';
-import { boopSound, sneezeSound, setSound, soundOn } from './sound.js';
+import { boopSound, sneezeSound, setSound, soundOn, wakeSound } from './sound.js';
 import { mutt } from './mutt.js';
 import { openBook } from './book.js';
 
@@ -211,6 +211,11 @@ wrap.addEventListener('pointerdown', e => {
     if (progress.boops === 0) hint('That’s a pat. Try the nose.');
   }
 });
+
+// The boop is on touch down, but a phone only allows sound once the finger lifts, so wake the sound then too
+// (touchend as well as pointerup, for Safari).
+document.addEventListener('pointerup', wakeSound, true);
+document.addEventListener('touchend', wakeSound, true);
 
 function hint(text) {
   const h = $('hint');
