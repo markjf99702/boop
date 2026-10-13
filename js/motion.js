@@ -50,6 +50,7 @@ export class DogMotion {
     this.last = null;
     this.lastVariant = '';
     this.mouthShown = null;
+    this.tongueHold = null;
   }
 
   later(ms, fn) { this.timers.push(setTimeout(fn, ms)); }
@@ -84,14 +85,15 @@ export class DogMotion {
   react(v) {
     const s = this.s;
     if (v === 'blep') {
-      s.tongue.to = this.pant ? 1 : 0.42;
-      this.later(2200, () => { s.tongue.to = this.pant ? 1 : 0; });
+      const hold = this.tongueHold = { to: this.pant ? 1 : 0.42 };
+      s.tongue.to = hold.to;
+      this.later(2200, () => { s.tongue.to = this.pant ? 1 : 0; this.release(hold); });
     } else if (v === 'lick') {
-      const was = s.tongue.to;
       s.tongue.to = 0;
       this.later(260, () => { s.lick.to = 1; });
       this.later(560, () => { s.lick.to = 0; });
-      this.later(800, () => { s.tongue.to = was; });
+      // Back out for a blep or a pant that's still going; if it finished during the lick, back to rest.
+      this.later(800, () => { s.tongue.to = this.tongueHold ? this.tongueHold.to : (this.pant ? 1 : 0); });
     } else if (v === 'tilt') {
       s.tilt.to = (Math.random() < 0.5 ? -1 : 1) * 11;
       this.later(1500, () => { s.tilt.to = 0; });
@@ -108,10 +110,14 @@ export class DogMotion {
       s.earR.v += 700; s.earL.v -= 700;
       this.later(900, () => { s.tilt.k = 90; s.tilt.d = 9; });
     } else if (v === 'pant') {
+      const hold = this.tongueHold = { to: 1 };
       s.jaw.to = 1; s.tongue.to = 1;
-      this.later(2600, () => { s.jaw.to = 0; s.tongue.to = 0; });
+      this.later(2600, () => { s.jaw.to = 0; s.tongue.to = 0; this.release(hold); });
     }
   }
+
+  // A blep or a pant holds the tongue out until its time is up, unless a newer one has taken over.
+  release(hold) { if (this.tongueHold === hold) this.tongueHold = null; }
 
   // A tap on the head or ears, not the nose.
   pat(side) {

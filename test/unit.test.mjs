@@ -5,6 +5,7 @@ import { FACTS } from '../js/facts.js';
 import { BREEDS } from '../js/breeds.js';
 import { TOPICS, FIRST_FACT, emptyProgress, tidy, nextFact, record, dogQueue, counts } from '../js/deck.js';
 import { drawDog } from '../js/dog.js';
+import { DogMotion } from '../js/motion.js';
 import { mutt } from '../js/mutt.js';
 import { seeded } from '../js/geom.js';
 
@@ -102,6 +103,65 @@ test('saved progress is cleaned up', () => {
   assert.equal(c.found, 1);
   assert.equal(c.total, FACTS.length);
   assert.equal(c.by.nose.found, 1);
+});
+
+// A dog's reactions on a pretend clock. DogMotion only needs to find its parts in the drawing and read a few
+// numbers off them, so a stand-in will do, and its later() queues work for run() instead of waiting for real.
+function motionOnAClock(spec) {
+  const part = () => ({ dataset: { y: '0' }, classList: { contains: () => false }, getAttribute: () => null, setAttribute() {}, querySelector: () => null });
+  const m = new DogMotion({ querySelector: part, querySelectorAll: () => [] }, spec);
+  let now = 0;
+  const due = [];
+  m.later = (ms, fn) => { due.push({ at: now + ms, fn }); };
+  const run = ms => {
+    const end = now + ms;
+    for (;;) {
+      due.sort((a, b) => a.at - b.at);
+      if (!due.length || due[0].at > end) break;
+      const next = due.shift();
+      now = next.at;
+      next.fn();
+    }
+    now = end;
+  };
+  return { m, run };
+}
+
+test('a lick in the middle of a blep or a pant leaves the tongue where it belongs', () => {
+  // A blep, then a lick that ends after the blep is over: the tongue goes back in.
+  let { m, run } = motionOnAClock({});
+  m.react('blep');
+  run(1600);
+  m.react('lick');
+  run(5000);
+  assert.equal(m.s.tongue.to, 0, 'a blep then a lick left the tongue out');
+
+  // A pant, then a lick that ends after the pant is over: the mouth closes with the tongue in.
+  ({ m, run } = motionOnAClock({}));
+  m.react('pant');
+  run(2000);
+  m.react('lick');
+  run(5000);
+  assert.equal(m.s.tongue.to, 0, 'a pant then a lick left the tongue out');
+  assert.equal(m.s.jaw.to, 0);
+
+  // A lick that ends while the blep is still going puts the tongue back out until the blep is over.
+  ({ m, run } = motionOnAClock({}));
+  m.react('blep');
+  run(200);
+  m.react('lick');
+  run(900);
+  assert.equal(m.s.tongue.to, 0.42);
+  run(2000);
+  assert.equal(m.s.tongue.to, 0);
+
+  // A dog that always pants has its tongue out again after two quick licks.
+  ({ m, run } = motionOnAClock({ pant: true }));
+  m.react('lick');
+  run(300);
+  m.react('lick');
+  run(3000);
+  assert.equal(m.s.tongue.to, 1, 'two quick licks left a panting dog with its tongue in');
 });
 
 test('every dog draws, including many mixed breeds', () => {
