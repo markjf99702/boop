@@ -35,10 +35,15 @@ page.on('request', r => { if (!r.url().startsWith(base)) problems.push('left the
 await page.goto(base);
 await page.evaluate(() => document.fonts.ready);
 const { FACTS } = await import(new URL('../js/facts.js', import.meta.url));
-const tapNose = async () => {
+const tapNose = async (times = 1) => {
   const box = await page.locator('.dog-wrap svg:last-child .nose .hit').boundingBox();
-  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  for (let i = 0; i < times; i++) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
 };
+// The dog has finished coming up from the bottom of the screen.
+const dogIsUp = () => page.waitForFunction(() => {
+  const svg = document.querySelector('.dog-wrap svg:last-child');
+  return svg?.classList.contains('arrived') && !svg.getAnimations().length;
+});
 const found = () => page.textContent('#foundCount').then(Number);
 
 // The first dog is a beagle, and the card asks for a boop.
@@ -52,17 +57,15 @@ const head = await page.locator('.dog-wrap svg:last-child .skull').boundingBox()
 await page.touchscreen.tap(head.x + head.width / 2, head.y + 12);
 assert.equal(await found(), 0, 'a pat on the head counted as a boop');
 
-// First boop: the nose-print fact, with its source.
-await tapNose();
-assert.equal(await found(), 1);
+// First boop: the nose-print fact, with its source. Boops closer together than 0.7 s squish the nose but don't
+// skip facts, so a second tap straight after it leaves the fact as it is. The two taps go back to back, so that
+// a busy machine can't stretch the time between them past 0.7 s.
+await tapNose(2);
+assert.equal(await found(), 1, 'a rapid second boop changed the fact');
 const first = FACTS.find(f => f.id === 'nose-print');
 assert.equal(await page.textContent('#fact'), first.text);
 assert.equal(await page.getAttribute('#meta a.src', 'href'), first.url);
 assert.equal(await page.isVisible('#badge'), true, 'no New badge on a new fact');
-
-// Boops closer together than 0.7 s squish the nose but don't skip facts.
-await tapNose();
-assert.equal(await found(), 1, 'a rapid second boop changed the fact');
 
 // The next one is about beagles: a dog's own breed comes first while it's new to you.
 await page.waitForTimeout(800);
@@ -118,7 +121,7 @@ await page.evaluate(() => document.fonts.ready);
 assert.equal(await found(), 10, 'progress was lost on reload');
 
 // Start over forgets everything and puts the card back the way it starts, with the ring round the nose.
-await page.waitForTimeout(700);
+await dogIsUp();
 await tapNose();
 assert.equal(await found(), 11);
 await page.click('#bookBtn');
