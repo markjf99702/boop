@@ -95,6 +95,10 @@ await page.waitForTimeout(720);
 await page.focus('.dog-wrap svg:last-child .nose');
 await page.keyboard.press('Enter');
 assert.equal(await found(), 10);
+// Next dog from the keyboard moves the focus on to the new dog's nose, rather than dropping it.
+await page.keyboard.press('n');
+await page.waitForTimeout(600);
+assert.equal(await page.evaluate(() => document.activeElement === document.querySelector('.dog-wrap svg:last-child .nose')), true, 'Next dog lost the keyboard focus');
 
 // The fact book lists what was found and the two dogs booped.
 await page.click('#bookBtn');

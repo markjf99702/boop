@@ -55,6 +55,8 @@ function showDog(id, { instant = false } = {}) {
   }
   if (!instant) svg.classList.add('arriving');
   wrap.append(svg);
+  // If the old dog's nose had the keyboard focus, hand it to the new one before the old dog goes.
+  if (old?.svg.contains(document.activeElement)) svg.querySelector('.nose').focus({ preventScroll: true });
   if (!instant) requestAnimationFrame(() => requestAnimationFrame(() => { svg.classList.add('arrived'); svg.classList.remove('arriving'); }));
 
   const motion = new DogMotion(svg, spec);
