@@ -16,14 +16,15 @@ export function emptyProgress() {
   return { seen: [], met: [], boops: 0 };
 }
 
-// Clean up whatever came out of storage: unknown ids are dropped, duplicates removed.
+// Clean up whatever came out of storage: unknown ids are dropped, duplicates removed, and a list that isn't a list is ignored.
 export function tidy(saved, facts, breeds) {
   const p = emptyProgress();
   if (!saved || typeof saved !== 'object') return p;
   const factIds = new Set(facts.map(f => f.id));
   const breedIds = new Set(breeds.map(b => b.id));
-  p.seen = [...new Set((saved.seen || []).filter(id => factIds.has(id)))];
-  p.met = [...new Set((saved.met || []).filter(id => breedIds.has(id)))];
+  const list = v => Array.isArray(v) ? v : [];
+  p.seen = [...new Set(list(saved.seen).filter(id => factIds.has(id)))];
+  p.met = [...new Set(list(saved.met).filter(id => breedIds.has(id)))];
   p.boops = Math.max(0, Math.floor(+saved.boops || 0));
   return p;
 }

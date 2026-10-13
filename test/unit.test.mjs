@@ -93,6 +93,11 @@ test('saved progress is cleaned up', () => {
   const p = tidy({ seen: ['nose-print', 'nose-print', 'no-such-fact'], met: ['beagle', 'wolf'], boops: '12.7', sound: false }, FACTS, BREEDS);
   assert.deepEqual(p, { seen: ['nose-print'], met: ['beagle'], boops: 12 });
   assert.deepEqual(tidy('junk', FACTS, BREEDS), emptyProgress());
+  // A list that isn't a list (hand-edited or damaged storage) is dropped, not left to stop the app from starting.
+  for (const junk of [{ seen: 'nose-print' }, { seen: {} }, { met: 5 }, { seen: null, met: null }]) {
+    assert.deepEqual(tidy(junk, FACTS, BREEDS), emptyProgress(), JSON.stringify(junk));
+  }
+  assert.deepEqual(tidy({ seen: ['nose-print'], met: 'beagle', boops: 3 }, FACTS, BREEDS), { seen: ['nose-print'], met: [], boops: 3 });
   const c = counts(FACTS, p);
   assert.equal(c.found, 1);
   assert.equal(c.total, FACTS.length);
