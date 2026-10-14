@@ -30,7 +30,7 @@ let queue = dogQueue(BREEDS, progress, { first: FIRST_DOG });
 let dog = null;        // { spec, svg, motion, boops }
 let lastTopic = null;
 let recent = [];
-let lastFactAt = 0;
+let lastFactAt = -Infinity; // none yet, so the first boop always turns one up (performance.now() starts at 0 as the page opens)
 let current = null;    // the fact on the card
 
 const wrap = $('dogWrap');

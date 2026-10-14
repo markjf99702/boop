@@ -123,7 +123,7 @@ assert.equal(await found(), 10, 'progress was lost on reload');
 // Start over forgets everything and puts the card back the way it starts, with the ring round the nose.
 await dogIsUp();
 await tapNose();
-assert.equal(await found(), 11);
+assert.equal(await found(), 11, 'the first boop after a reload did not count');
 await page.click('#bookBtn');
 await page.click('#resetBook');
 await page.click('#resetBook');
@@ -241,6 +241,25 @@ await ctx.setOffline(false);
   assert.ok(word, 'no boop word on a tap');
   assert.ok(word.moved < 1, `with reduced motion on, the boop word still moved ${word.moved}px`);
   await still.close();
+}
+
+// The first boop after the page opens turns up a fact, however soon it comes: facts come at most every 0.7 s, counted
+// from the last one, and before the first boop there isn't one. Here the page's clock stands still at 0 from the start
+// (Playwright's stopped clock only stops once the page asks the time, so the page asks at once), so the boop comes in
+// the page's first 0.7 s however slow the machine is. With the clock stopped the dog never comes up, so the boop comes
+// from the keyboard, and a second one straight after still waits its turn.
+{
+  const early = await browser.newContext({ serviceWorkers: 'block' });
+  await early.clock.pauseAt(Date.now());
+  await early.addInitScript(() => performance.now());
+  const p = await early.newPage();
+  p.on('pageerror', e => problems.push(e.message));
+  await p.goto(base);
+  await p.keyboard.press('b');
+  assert.equal(await p.textContent('#foundCount'), '1', 'a boop in the first 0.7 s after the page opened did not count');
+  await p.keyboard.press('b');
+  assert.equal(await p.textContent('#foundCount'), '1', 'a rapid second boop changed the fact');
+  await early.close();
 }
 
 assert.deepEqual(problems.filter(p => !p.startsWith('failed:')), [], 'problems while using it');
