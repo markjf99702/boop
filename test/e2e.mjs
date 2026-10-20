@@ -162,7 +162,8 @@ assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= i
 
 // Most phones show less than their full height while the browser's toolbars are up, and the longest fact makes the
 // card tall. The dog gets smaller to fit the room the card leaves, so the nose and Next dog stay on the screen with
-// nothing over them, and the page doesn't scroll. The same goes for a phone held sideways.
+// nothing over them, and the page doesn't scroll. The same goes for a phone held sideways, where the card sits beside
+// the dog instead of above it.
 for (const [width, height] of [[390, 664], [360, 640], [320, 568], [844, 390]]) {
   const small = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const p = await small.newPage();
@@ -178,9 +179,10 @@ for (const [width, height] of [[390, 664], [360, 640], [320, 568], [844, 390]]) 
     const nose = document.querySelector('.dog-wrap svg:last-child .nose');
     const next = document.getElementById('nextBtn');
     const noseBox = box(nose.querySelector('.hit')), nextBox = box(next);
+    const fact = document.getElementById('fact');
     return {
-      nose: noseBox, next: nextBox, card: box(document.getElementById('card')),
-      noseFree: onTop(nose, noseBox), nextFree: onTop(next, nextBox),
+      nose: noseBox, next: nextBox, card: box(document.getElementById('card')), dog: box(document.getElementById('dogWrap')),
+      noseFree: onTop(nose, noseBox), nextFree: onTop(next, nextBox), factFits: fact.scrollHeight <= fact.clientHeight,
       tall: document.documentElement.scrollHeight, wide: document.documentElement.scrollWidth,
     };
   });
@@ -193,6 +195,16 @@ for (const [width, height] of [[390, 664], [360, 640], [320, 568], [844, 390]]) 
   assert.ok(at.nextFree, `at ${size} something covers Next dog`);
   assert.ok(at.tall <= height, `at ${size} the page scrolls: it is ${at.tall}px tall`);
   assert.ok(at.wide <= width, `at ${size} the page scrolls sideways`);
+  // toSvg() in app.js maps a finger onto the drawing through the box round it, so the box must keep the drawing's shape.
+  assert.ok(Math.abs(at.dog.width / at.dog.height - 400 / 420) < 0.01, `at ${size} the dog's box is ${at.dog.width}x${at.dog.height}, not the drawing's shape`);
+  if (width > height) {
+    // Sideways, the card is beside the dog, the whole fact fits on it without scrolling inside the card, and the
+    // longest breed name fits too.
+    assert.ok(at.card.right <= at.dog.left, `at ${size} the card is not beside the dog`);
+    assert.ok(at.factFits, `at ${size} the longest fact does not fit on the card`);
+    const nameFits = await p.evaluate(() => { window.boop.show('corgi'); const b = document.getElementById('breed'); return b.scrollWidth <= b.clientWidth; });
+    assert.ok(nameFits, `at ${size} the name Pembroke Welsh Corgi is cut short`);
+  }
   await small.close();
 }
 

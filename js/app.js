@@ -38,10 +38,14 @@ const card = $('card');
 const firstCard = card.innerHTML; // what the card says before the first boop, for Start over
 
 // The dog is sized to the room the card leaves free (--room in app.css), so a long fact on a short screen gives a
-// smaller dog rather than pushing its nose and Next dog off the bottom. Measured again whenever the card or the
-// screen changes size.
+// smaller dog rather than pushing its nose and Next dog off the bottom. On a phone held sideways the card sits beside
+// the dog instead, and the dog is sized to the stage's height (--stage-height). Measured again whenever the card or
+// the screen changes size.
 const stage = $('stage');
-const roomForDog = new ResizeObserver(() => stage.style.setProperty('--room', `${stage.clientHeight - card.offsetHeight}px`));
+const roomForDog = new ResizeObserver(() => {
+  stage.style.setProperty('--room', `${stage.clientHeight - card.offsetHeight}px`);
+  stage.style.setProperty('--stage-height', `${stage.clientHeight}px`);
+});
 roomForDog.observe(stage);
 roomForDog.observe(card);
 

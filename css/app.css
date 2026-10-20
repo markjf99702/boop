@@ -325,11 +325,43 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
   body { background-image: radial-gradient(ellipse 70% 60% at 50% 78%, color-mix(in oklab, var(--dogbg) 45%, #14100e), transparent); }
 }
 
-/* Short screens (a phone on its side): a smaller dog. */
+/* Short screens: a smaller dog and a tighter card. A phone on its side also gets the layout below. */
 @media (max-height: 520px) {
   .dog-wrap { width: min(100%, calc(64dvh * .952), var(--fit)); }
   .card { padding: 11px 16px 10px; }
   .meta { margin-top: 6px; }
+}
+
+/* A phone on its side: the card on the left with the dog's name and Next dog under it, and the dog on the right,
+   standing on the bottom edge, as tall as the room under the top bar (--stage-height, measured in app.js) but no
+   wider than 37% of the screen, so the card keeps room for the longest facts. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .stage {
+    --dog-w: min(calc(var(--stage-height, 100dvh) * .952), 37vw);
+    display: grid;
+    grid-template-columns: minmax(0, 35rem) var(--dog-w);
+    justify-content: center;
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  }
+  .card {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    max-height: calc(100% - 8px);
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    transform-origin: 100% 50%;
+  }
+  /* The tail points right, at the dog. */
+  .card::after { left: auto; right: -10px; top: calc(50% - 11px); bottom: auto; transform: rotate(-45deg); }
+  /* Type sized to the screen's height; a fact that still doesn't fit scrolls inside the card. */
+  .fact { font-size: clamp(16px, 4.8dvh, 20px); }
+  .fact:not(.intro) { min-height: 0; overflow: hidden auto; }
+  .dog-wrap { grid-column: 2; grid-row: 1 / 3; width: var(--dog-w); align-self: end; margin: 0; }
+  .dogbar { position: static; grid-column: 1; grid-row: 2; width: auto; margin: 0; padding-left: 0; padding-right: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
