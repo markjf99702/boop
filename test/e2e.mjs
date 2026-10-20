@@ -163,8 +163,9 @@ assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= i
 // Most phones show less than their full height while the browser's toolbars are up, and the longest fact makes the
 // card tall. The dog gets smaller to fit the room the card leaves, so the nose and Next dog stay on the screen with
 // nothing over them, and the page doesn't scroll. The same goes for a phone held sideways, where the card sits beside
-// the dog instead of above it.
-for (const [width, height] of [[390, 664], [360, 640], [320, 568], [844, 390]]) {
+// the dog instead of above it. A phone with its text size turned up to 150% gives the page about 260x443: there the
+// dog stops shrinking before its name and Next dog cover its nose, and the fact scrolls inside the card instead.
+for (const [width, height] of [[390, 664], [360, 640], [320, 568], [260, 443], [844, 390]]) {
   const small = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const p = await small.newPage();
   p.on('pageerror', e => problems.push(e.message));

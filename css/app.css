@@ -116,6 +116,9 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   position: relative;
   min-height: 0;
   overflow: hidden;
+  /* The smallest a long fact can make the dog: three times the height of the bar with its name and Next dog, so
+     its nose stays clear of them. */
+  --dog-min: calc(3 * (58px + env(safe-area-inset-bottom)));
 }
 .card {
   position: relative;
@@ -127,6 +130,11 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   border-radius: 22px;
   box-shadow: var(--shadow);
   transform-origin: 50% 100%;
+  /* The card leaves the dog at least --dog-min (and the 6px gap), so on a very small screen, such as a phone with
+     its text size turned up, a long fact scrolls inside the card rather than shrinking the dog behind Next dog. */
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 6px - var(--dog-min));
 }
 .card::after {
   /* A speech-bubble tail, pointing at the dog. */
@@ -160,6 +168,8 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   text-wrap: pretty;
 }
 .fact.intro { font: 600 clamp(28px, 8vw, 34px)/1.1 Fredoka, system-ui, sans-serif; letter-spacing: -.01em; }
+/* 2px either side keeps the edges of letters that lean past the line from being cut off; the lines stay as wide. */
+.fact:not(.intro) { min-height: 0; overflow: hidden auto; padding: 0 2px; margin: 0 -2px; }
 .kicker:has(.topic:empty) { display: none; }
 .meta {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -351,15 +361,12 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
     width: 100%;
     max-height: calc(100% - 8px);
     margin: auto 0;
-    display: flex;
-    flex-direction: column;
     transform-origin: 100% 50%;
   }
   /* The tail points right, at the dog. */
   .card::after { left: auto; right: -10px; top: calc(50% - 11px); bottom: auto; transform: rotate(-45deg); }
   /* Type sized to the screen's height; a fact that still doesn't fit scrolls inside the card. */
   .fact { font-size: clamp(16px, 4.8dvh, 20px); }
-  .fact:not(.intro) { min-height: 0; overflow: hidden auto; }
   .dog-wrap { grid-column: 2; grid-row: 1 / 3; width: var(--dog-w); align-self: end; margin: 0; }
   .dogbar { position: static; grid-column: 1; grid-row: 2; width: auto; margin: 0; padding-left: 0; padding-right: 0; }
 }
