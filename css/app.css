@@ -209,12 +209,14 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   pointer-events: none;
 }
 .dogbar > * { pointer-events: auto; }
+/* The breed name and Next dog each have a thin ring in the opposite tone, so they keep their shape on a coat
+   of their own colour (the Rottweiler's black chest, the Samoyed's white one). */
 .breed {
   margin: 0;
   padding: 9px 15px;
   border-radius: 99px;
   background: var(--paper);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 0 0 2px color-mix(in oklab, var(--ink) 45%, transparent);
   font-weight: 600; font-size: 15.5px;
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
@@ -226,7 +228,7 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   background: var(--ink);
   color: var(--paper);
   font-weight: 600; font-size: 16px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 0 0 2px color-mix(in oklab, var(--paper) 45%, transparent);
 }
 .next:active, .book-btn:active, .icon-btn:active { transform: scale(.96); }
 
