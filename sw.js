@@ -15,9 +15,10 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  // The other tools at junkdrawer.works/ share this address and keep their copies here too, so only clear out Boop's.
+  // The other tools at junkdrawer.works/ share this address and keep their copies here too, so only clear out Boop's,
+  // by its exact name: a tool called boop-something keeps its copy.
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k.startsWith('boop-') && k !== CACHE).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k !== CACHE && /^boop-v[0-9]+$/.test(k)).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

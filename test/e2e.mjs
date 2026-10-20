@@ -168,8 +168,8 @@ assert.ok(await page.title(), 'the page did not load offline');
 await ctx.setOffline(false);
 
 // The tools at junkdrawer.works/ share one address, and with it one place for offline copies. When Boop's service
-// worker starts, it clears out Boop's old copy and leaves another tool's alone. Both are made on a page of the site
-// that doesn't start the service worker, so they're there before it is.
+// worker starts, it clears out Boop's old copy and leaves another tool's alone, even one whose name starts with
+// "boop-". They're all made on a page of the site that doesn't start the service worker, so they're there before it is.
 {
   const shared = await browser.newContext();
   const p = await shared.newPage();
@@ -177,6 +177,7 @@ await ctx.setOffline(false);
   await p.goto(base + 'icon.svg');
   await p.evaluate(async () => {
     await (await caches.open('another-tool-v1')).put('another-tool/', new Response('another tool'));
+    await (await caches.open('boop-x-v1')).put('boop-x/', new Response('a tool called boop-x'));
     await (await caches.open('boop-v0')).put('index.html', new Response('an old Boop'));
   });
   await p.goto(base);
@@ -184,6 +185,7 @@ await ctx.setOffline(false);
   await p.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 30000 });
   const has = name => p.evaluate(n => caches.has(n), name);
   assert.equal(await has('another-tool-v1'), true, "starting up deleted another tool's offline copy");
+  assert.equal(await has('boop-x-v1'), true, "starting up deleted the offline copy of a tool whose name starts with boop-");
   assert.equal(await has('boop-v0'), false, 'starting up left an old offline copy of Boop behind');
   await shared.close();
 }
