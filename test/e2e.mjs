@@ -160,6 +160,42 @@ assert.deepEqual(names, []);
 // Fits a phone: nothing scrolls sideways.
 assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'the page scrolls sideways on a phone');
 
+// Most phones show less than their full height while the browser's toolbars are up, and the longest fact makes the
+// card tall. The dog gets smaller to fit the room the card leaves, so the nose and Next dog stay on the screen with
+// nothing over them, and the page doesn't scroll. The same goes for a phone held sideways.
+for (const [width, height] of [[390, 664], [360, 640], [320, 568], [844, 390]]) {
+  const small = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const p = await small.newPage();
+  p.on('pageerror', e => problems.push(e.message));
+  await p.goto(base);
+  await p.evaluate(() => document.fonts.ready);
+  await p.evaluate(() => { window.boop.show('beagle'); window.boop.fact('medical'); });
+  // The dog is resized for the new card before the next frame is drawn.
+  await p.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
+  const at = await p.evaluate(() => {
+    const box = el => el.getBoundingClientRect().toJSON();
+    const onTop = (el, r) => el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
+    const nose = document.querySelector('.dog-wrap svg:last-child .nose');
+    const next = document.getElementById('nextBtn');
+    const noseBox = box(nose.querySelector('.hit')), nextBox = box(next);
+    return {
+      nose: noseBox, next: nextBox, card: box(document.getElementById('card')),
+      noseFree: onTop(nose, noseBox), nextFree: onTop(next, nextBox),
+      tall: document.documentElement.scrollHeight, wide: document.documentElement.scrollWidth,
+    };
+  });
+  const onScreen = r => r.top >= 0 && r.left >= 0 && r.bottom <= height && r.right <= width;
+  const size = `${width}x${height}`;
+  assert.ok(onScreen(at.card), `at ${size} the long fact's card runs off the screen`);
+  assert.ok(onScreen(at.nose), `at ${size} the dog's nose is off the screen with a long fact on the card`);
+  assert.ok(onScreen(at.next), `at ${size} Next dog is off the screen with a long fact on the card`);
+  assert.ok(at.noseFree, `at ${size} something covers the dog's nose`);
+  assert.ok(at.nextFree, `at ${size} something covers Next dog`);
+  assert.ok(at.tall <= height, `at ${size} the page scrolls: it is ${at.tall}px tall`);
+  assert.ok(at.wide <= width, `at ${size} the page scrolls sideways`);
+  await small.close();
+}
+
 // Works offline once it has been opened.
 await page.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 10000 }).catch(() => {});
 await ctx.setOffline(true);

@@ -52,7 +52,7 @@ const fragment = html
 const swaps = [
   ['padding: calc(10px + env(safe-area-inset-top)) 16px 4px;', 'padding: 10px 16px 4px;'],
   ['padding: 0 16px calc(14px + env(safe-area-inset-bottom));', 'padding: 0 16px 14px;'],
-  ['  margin: 0;\n  min-height: 100dvh;', '  margin: 0;\n  height: 100%;\n  min-height: 100%;'],
+  ['  margin: 0;\n  height: 100dvh;', '  margin: 0;\n  height: 100%;\n  min-height: 100%;'],
   ['html { -webkit-text-size-adjust: 100%; }', 'html { -webkit-text-size-adjust: 100%; height: 100%; }'],
 ];
 let embedded = fragment;

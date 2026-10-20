@@ -37,6 +37,14 @@ const wrap = $('dogWrap');
 const card = $('card');
 const firstCard = card.innerHTML; // what the card says before the first boop, for Start over
 
+// The dog is sized to the room the card leaves free (--room in app.css), so a long fact on a short screen gives a
+// smaller dog rather than pushing its nose and Next dog off the bottom. Measured again whenever the card or the
+// screen changes size.
+const stage = $('stage');
+const roomForDog = new ResizeObserver(() => stage.style.setProperty('--room', `${stage.clientHeight - card.offsetHeight}px`));
+roomForDog.observe(stage);
+roomForDog.observe(card);
+
 // ---- dogs
 function showDog(id, { instant = false } = {}) {
   const base = byId[id];

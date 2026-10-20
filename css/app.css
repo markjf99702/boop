@@ -54,7 +54,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--page) radial-gradient(ellipse 70% 60% at 50% 78%, color-mix(in oklab, var(--page) 55%, #fff 45%), transparent) no-repeat;
@@ -181,7 +181,11 @@ button:focus-visible, a:focus-visible, .nose:focus-visible { outline: 3px solid 
   position: relative;
   flex: none;
   align-self: center;
-  width: min(118vw, 640px, calc(63dvh * .952));
+  /* The dog is 400 wide by 420 high (.952 turns a height into its width), and no taller than the room the card
+     leaves under it, less the 6px gap: --room, measured in app.js. So a long fact on a short screen gives a smaller
+     dog, instead of pushing its nose and Next dog off the bottom. */
+  --fit: calc((var(--room, 100dvh) - 6px) * .952);
+  width: min(118vw, 640px, calc(63dvh * .952), var(--fit));
   aspect-ratio: 400 / 420;
   margin-top: 6px;
   touch-action: manipulation;
@@ -315,7 +319,7 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
 .noscript { padding: 24px; font-size: 18px; }
 
 @media (max-height: 740px) {
-  .dog-wrap { width: min(118vw, 640px, calc(58dvh * .952)); }
+  .dog-wrap { width: min(118vw, 640px, calc(58dvh * .952), var(--fit)); }
 }
 @media (prefers-color-scheme: dark) {
   body { background-image: radial-gradient(ellipse 70% 60% at 50% 78%, color-mix(in oklab, var(--dogbg) 45%, #14100e), transparent); }
@@ -323,7 +327,7 @@ dialog.book::backdrop { background: rgba(35, 22, 12, .45); }
 
 /* Short screens (a phone on its side): a smaller dog. */
 @media (max-height: 520px) {
-  .dog-wrap { width: min(100%, calc(64dvh * .952)); }
+  .dog-wrap { width: min(100%, calc(64dvh * .952), var(--fit)); }
   .card { padding: 11px 16px 10px; }
   .meta { margin-top: 6px; }
 }
